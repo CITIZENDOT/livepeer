@@ -321,4 +321,5 @@ body {
 }
 
 /* Import the drawing canvas styles */
-@import "../components/DrawingCanvas/styles/drawing-canvas.css";
+/* @import url("../components/DrawingCanvas/styles/drawing-canvas.css"); */
+@import url('../styles/drawing-canvas.css');

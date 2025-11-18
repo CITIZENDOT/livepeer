@@ -3,6 +3,8 @@
 import Image from 'next/image'
 import { useState, useRef } from 'react'
 import { DrawingCanvas } from '../components/DrawingCanvas'
+import { RecordingPreview } from '../components/RecordingPreview'
+import { twMerge } from 'tailwind-merge'
 
 // Custom color palette
 const customColors = [
@@ -22,6 +24,7 @@ export default function Home() {
   const [isRecording, setIsRecording] = useState(false)
   const mediaRecorder = useRef<MediaRecorder | null>(null)
   const chunks = useRef<Blob[]>([])
+  const [recordedVideoUrl, setRecordedVideoUrl] = useState('')
 
   // Basic example stream handler
   const handleBasicStreamReady = (stream: MediaStream) => {
@@ -41,9 +44,17 @@ export default function Home() {
 
   // Recording example handler
   const handleRecordingStreamReady = (stream: MediaStream) => {
-    mediaRecorder.current = new MediaRecorder(stream, {
-      mimeType: 'video/webm',
-    })
+    const options: MediaRecorderOptions = {}
+
+    if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) {
+      options.mimeType = 'video/webm;codecs=vp9,opus'
+    } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
+      options.mimeType = 'video/webm;codecs=vp8,opus'
+    } else if (MediaRecorder.isTypeSupported('video/webm')) {
+      options.mimeType = 'video/webm'
+    }
+
+    mediaRecorder.current = new MediaRecorder(stream, options)
 
     mediaRecorder.current.ondataavailable = (e) => {
       if (e.data.size > 0) {
@@ -54,11 +65,8 @@ export default function Home() {
     mediaRecorder.current.onstop = () => {
       const blob = new Blob(chunks.current, { type: 'video/webm' })
       const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `drawing-${new Date().toISOString()}.webm`
-      a.click()
-      chunks.current = []
+      console.log('Recorded blob URL: ', url)
+      setRecordedVideoUrl(url)
     }
   }
 
@@ -68,6 +76,7 @@ export default function Home() {
     if (isRecording) {
       mediaRecorder.current.stop()
     } else {
+      chunks.current = []
       mediaRecorder.current.start()
     }
     setIsRecording(!isRecording)
@@ -155,7 +164,7 @@ export default function Home() {
 
         {/* Recording Example */}
         {activeExample === 'recording' && (
-          <div className="example-section">
+          <div className="example-section col-span-1">
             <h2>Canvas Recording</h2>
             <p>Record your drawing session and download it as a video file.</p>
             <div className="recording-controls">
@@ -170,14 +179,27 @@ export default function Home() {
                 <span className="recording-indicator">Recording...</span>
               )}
             </div>
-            <div className="canvas-wrapper">
-              <DrawingCanvas
-                onStreamReady={handleRecordingStreamReady}
-                fps={60}
-                initialColor="#FF0000"
-                className="drawing-canvas-container"
-                canvasClassName="custom-canvas"
-              />
+            <div className="grid grid-cols-2 gap-x-1">
+              <div
+                className={twMerge(
+                  'canvas-wrapper',
+                  recordedVideoUrl ? 'col-span-1' : 'col-span-full'
+                )}
+              >
+                <DrawingCanvas
+                  onStreamReady={handleRecordingStreamReady}
+                  fps={60}
+                  initialColor="#FF0000"
+                  className="drawing-canvas-container"
+                  canvasClassName="custom-canvas"
+                />
+              </div>
+
+              {recordedVideoUrl && (
+                <div className="col-span-1">
+                  <RecordingPreview src={recordedVideoUrl} />
+                </div>
+              )}
             </div>
           </div>
         )}

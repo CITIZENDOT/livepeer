@@ -1,7 +1,7 @@
-import React from "react";
-import { PaintBucket } from "lucide-react";
+import React from 'react';
+import { PaintBucket } from 'lucide-react';
 
-export type DrawingTool = "brush" | "line" | "circle" | "fill";
+export type DrawingTool = 'brush' | 'line' | 'circle' | 'fill';
 
 interface ToolSelectorProps {
   selectedTool: DrawingTool;
@@ -12,13 +12,13 @@ interface ToolSelectorProps {
 export const ToolSelector: React.FC<ToolSelectorProps> = ({
   selectedTool,
   onToolChange,
-  className = "",
+  className = '',
 }) => {
   const getButtonClass = (tool: DrawingTool) =>
     `flex items-center justify-center w-8 h-8 rounded transition-colors ${
       selectedTool === tool
-        ? "bg-blue-600 text-white"
-        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+        ? 'bg-blue-600 text-white'
+        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
     }`;
 
   return (
@@ -29,8 +29,8 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({
 
       {/* Brush Tool */}
       <button
-        onClick={() => onToolChange("brush")}
-        className={getButtonClass("brush")}
+        onClick={() => onToolChange('brush')}
+        className={getButtonClass('brush')}
         title="Brush"
         aria-label="Select brush tool"
       >
@@ -41,8 +41,8 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({
 
       {/* Line Tool */}
       <button
-        onClick={() => onToolChange("line")}
-        className={getButtonClass("line")}
+        onClick={() => onToolChange('line')}
+        className={getButtonClass('line')}
         title="Line"
         aria-label="Select line tool"
       >
@@ -53,8 +53,8 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({
 
       {/* Circle Tool */}
       <button
-        onClick={() => onToolChange("circle")}
-        className={getButtonClass("circle")}
+        onClick={() => onToolChange('circle')}
+        className={getButtonClass('circle')}
         title="Circle"
         aria-label="Select circle tool"
       >
@@ -65,8 +65,8 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({
 
       {/* Fill Tool */}
       <button
-        onClick={() => onToolChange("fill")}
-        className={getButtonClass("fill")}
+        onClick={() => onToolChange('fill')}
+        className={getButtonClass('fill')}
         title="Fill"
         aria-label="Select fill tool"
       >

@@ -15,7 +15,7 @@ class AudioTrackManager {
   }
 
   getSilentAudioTrack(): MediaStreamTrack {
-    if (this.silentTrack && this.silentTrack.readyState === "live") {
+    if (this.silentTrack && this.silentTrack.readyState === 'live') {
       return this.silentTrack.clone();
     }
 
@@ -34,10 +34,10 @@ class AudioTrackManager {
       // Create a very quiet sine wave
       this.oscillator.frequency.setValueAtTime(
         440,
-        this.audioContext.currentTime,
+        this.audioContext.currentTime
       );
       gain.gain.setValueAtTime(0.01, this.audioContext.currentTime);
-      this.oscillator.type = "sine";
+      this.oscillator.type = 'sine';
 
       this.oscillator.connect(gain);
       gain.connect(this.destination);
@@ -45,12 +45,12 @@ class AudioTrackManager {
 
       this.silentTrack = this.destination.stream.getAudioTracks()[0];
       if (this.silentTrack.contentHint !== undefined) {
-        this.silentTrack.contentHint = "music";
+        this.silentTrack.contentHint = 'music';
       }
 
       return this.silentTrack.clone();
     } catch (error) {
-      console.warn("Failed to create silent audio track:", error);
+      console.warn('Failed to create silent audio track:', error);
       // Return a dummy track as fallback
       return new MediaStreamTrack();
     }
@@ -72,7 +72,7 @@ class AudioTrackManager {
       this.destination = null;
     }
 
-    if (this.audioContext && this.audioContext.state !== "closed") {
+    if (this.audioContext && this.audioContext.state !== 'closed') {
       this.audioContext.close();
       this.audioContext = null;
     }

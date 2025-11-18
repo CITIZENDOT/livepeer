@@ -1,7 +1,7 @@
-import React from "react";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { Slider } from "../ui/slider";
+import React from 'react';
+import { Button } from '../ui/button';
+import { Label } from '../ui/label';
+import { Slider } from '../ui/slider';
 
 interface BrushControlsProps {
   brushSize: number;
@@ -22,7 +22,7 @@ export const BrushControls: React.FC<BrushControlsProps> = ({
   canUndo,
   onUndo,
   onClear,
-  className = "",
+  className = '',
 }) => {
   return (
     <div className={`flex items-center justify-between gap-2 p-2 ${className}`}>
@@ -50,7 +50,7 @@ export const BrushControls: React.FC<BrushControlsProps> = ({
           <input
             type="checkbox"
             checked={fadingEnabled}
-            onChange={e => onFadingToggle(e.target.checked)}
+            onChange={(e) => onFadingToggle(e.target.checked)}
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
           />
           <span className="text-sm text-gray-600">Fade</span>
@@ -63,8 +63,8 @@ export const BrushControls: React.FC<BrushControlsProps> = ({
           disabled={!canUndo}
           className={`text-2xl transition-colors ${
             canUndo
-              ? "text-gray-700 hover:text-gray-900 cursor-pointer"
-              : "text-gray-400 cursor-not-allowed"
+              ? 'text-gray-700 hover:text-gray-900 cursor-pointer'
+              : 'text-gray-400 cursor-not-allowed'
           }`}
           title="Undo"
           aria-label="Undo last action"

@@ -1,23 +1,23 @@
-"use client"
+'use client';
 
-import Image from "next/image";
-import { useState, useRef } from "react";
-import { DrawingCanvas } from "../components/DrawingCanvas";
+import Image from 'next/image';
+import { useState, useRef } from 'react';
+import { DrawingCanvas } from '../components/DrawingCanvas';
 
 // Custom color palette
 const customColors = [
-  { name: "Ocean Blue", value: "#0077BE" },
-  { name: "Forest Green", value: "#228B22" },
-  { name: "Sunset Orange", value: "#FF6B35" },
-  { name: "Royal Purple", value: "#663399" },
-  { name: "Hot Pink", value: "#FF69B4" },
-  { name: "Golden Yellow", value: "#FFD700" },
+  { name: 'Ocean Blue', value: '#0077BE' },
+  { name: 'Forest Green', value: '#228B22' },
+  { name: 'Sunset Orange', value: '#FF6B35' },
+  { name: 'Royal Purple', value: '#663399' },
+  { name: 'Hot Pink', value: '#FF69B4' },
+  { name: 'Golden Yellow', value: '#FFD700' },
 ];
 
 export default function Home() {
   const [activeExample, setActiveExample] = useState<
-    "basic" | "custom" | "recording" | "streaming"
-  >("streaming");
+    'basic' | 'custom' | 'recording' | 'streaming'
+  >('streaming');
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorder = useRef<MediaRecorder | null>(null);
@@ -25,24 +25,24 @@ export default function Home() {
 
   // Basic example stream handler
   const handleBasicStreamReady = (stream: MediaStream) => {
-    console.log("Basic stream ready:", stream);
+    console.log('Basic stream ready:', stream);
   };
 
   // Streaming example handler
   const handleStreamingReady = (stream: MediaStream) => {
     setLocalStream(stream);
-    console.log("Streaming ready with tracks:", {
+    console.log('Streaming ready with tracks:', {
       video: stream.getVideoTracks()[0]?.getSettings(),
       audio: stream.getAudioTracks()[0]
-        ? "Silent audio track included"
-        : "No audio",
+        ? 'Silent audio track included'
+        : 'No audio',
     });
   };
 
   // Recording example handler
   const handleRecordingStreamReady = (stream: MediaStream) => {
     mediaRecorder.current = new MediaRecorder(stream, {
-      mimeType: "video/webm",
+      mimeType: 'video/webm',
     });
 
     mediaRecorder.current.ondataavailable = (e) => {
@@ -52,9 +52,9 @@ export default function Home() {
     };
 
     mediaRecorder.current.onstop = () => {
-      const blob = new Blob(chunks.current, { type: "video/webm" });
+      const blob = new Blob(chunks.current, { type: 'video/webm' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
       a.download = `drawing-${new Date().toISOString()}.webm`;
       a.click();
@@ -81,30 +81,30 @@ export default function Home() {
 
       <nav className="example-nav">
         <button
-          className={`nav-button ${activeExample === "basic" ? "active" : ""}`}
-          onClick={() => setActiveExample("basic")}
+          className={`nav-button ${activeExample === 'basic' ? 'active' : ''}`}
+          onClick={() => setActiveExample('basic')}
         >
           Basic Canvas
         </button>
         <button
-          className={`nav-button ${activeExample === "custom" ? "active" : ""}`}
-          onClick={() => setActiveExample("custom")}
+          className={`nav-button ${activeExample === 'custom' ? 'active' : ''}`}
+          onClick={() => setActiveExample('custom')}
         >
           Custom Colors
         </button>
         <button
           className={`nav-button ${
-            activeExample === "recording" ? "active" : ""
+            activeExample === 'recording' ? 'active' : ''
           }`}
-          onClick={() => setActiveExample("recording")}
+          onClick={() => setActiveExample('recording')}
         >
           Recording
         </button>
         <button
           className={`nav-button ${
-            activeExample === "streaming" ? "active" : ""
+            activeExample === 'streaming' ? 'active' : ''
           }`}
-          onClick={() => setActiveExample("streaming")}
+          onClick={() => setActiveExample('streaming')}
         >
           Live Stream
         </button>
@@ -112,7 +112,7 @@ export default function Home() {
 
       <main className="example-content">
         {/* Basic Example */}
-        {activeExample === "basic" && (
+        {activeExample === 'basic' && (
           <div className="example-section">
             <h2>Basic Drawing Canvas</h2>
             <p>
@@ -132,7 +132,7 @@ export default function Home() {
         )}
 
         {/* Custom Colors Example */}
-        {activeExample === "custom" && (
+        {activeExample === 'custom' && (
           <div className="example-section">
             <h2>Custom Color Palette</h2>
             <p>
@@ -154,17 +154,17 @@ export default function Home() {
         )}
 
         {/* Recording Example */}
-        {activeExample === "recording" && (
+        {activeExample === 'recording' && (
           <div className="example-section">
             <h2>Canvas Recording</h2>
             <p>Record your drawing session and download it as a video file.</p>
             <div className="recording-controls">
               <button
                 onClick={toggleRecording}
-                className={`record-button ${isRecording ? "recording" : ""}`}
+                className={`record-button ${isRecording ? 'recording' : ''}`}
                 disabled={!mediaRecorder.current}
               >
-                {isRecording ? "⏹ Stop Recording" : "⏺ Start Recording"}
+                {isRecording ? '⏹ Stop Recording' : '⏺ Start Recording'}
               </button>
               {isRecording && (
                 <span className="recording-indicator">Recording...</span>
@@ -183,7 +183,7 @@ export default function Home() {
         )}
 
         {/* Streaming Example */}
-        {activeExample === "streaming" && (
+        {activeExample === 'streaming' && (
           <div className="example-section">
             <h2>Live Stream Preview</h2>
             <p>

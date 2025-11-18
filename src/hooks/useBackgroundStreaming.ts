@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from "react";
-import { STREAMING_CONFIG } from "../lib/streamingConfig";
+import { useCallback, useEffect, useRef } from 'react';
+import { STREAMING_CONFIG } from '../lib/streamingConfig';
 
 interface UseBackgroundStreamingOptions {
   onBackgroundFrame?: () => void;
@@ -38,7 +38,7 @@ export const useBackgroundStreaming = ({
         onBackgroundFrame();
       } else {
         // Default background frame rendering
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext('2d');
         if (ctx) {
           const time = Date.now();
           const flickerValue = Math.floor((Math.sin(time * 0.01) + 1) * 127.5);
@@ -49,8 +49,8 @@ export const useBackgroundStreaming = ({
 
       // Request frame if available (Chrome-specific optimization)
       if (
-        "requestFrame" in videoTrack &&
-        typeof (videoTrack as any).requestFrame === "function"
+        'requestFrame' in videoTrack &&
+        typeof (videoTrack as any).requestFrame === 'function'
       ) {
         (videoTrack as any).requestFrame();
       }
@@ -76,12 +76,12 @@ export const useBackgroundStreaming = ({
   }, [enabled, startBackgroundStreaming, stopBackgroundStreaming]);
 
   useEffect(() => {
-    if (!enabled || typeof window === "undefined") return;
+    if (!enabled || typeof window === 'undefined') return;
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       stopBackgroundStreaming();
     };
   }, [enabled, handleVisibilityChange, stopBackgroundStreaming]);

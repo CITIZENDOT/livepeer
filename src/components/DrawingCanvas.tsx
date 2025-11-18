@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ColorPalette } from "./ColorPalette";
-import { BrushControls } from "./BrushControls";
-import { ToolSelector, type DrawingTool } from "./ToolSelector";
-import { useBackgroundStreaming } from "../hooks/useBackgroundStreaming";
-import { STREAMING_CONFIG } from "../lib/streamingConfig";
-import { createSilentAudioTrack } from "../lib/audioTrackManager";
-import { streamStabilizer } from "../lib/streamStabilizer";
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { ColorPalette } from './ColorPalette';
+import { BrushControls } from './BrushControls';
+import { ToolSelector, type DrawingTool } from './ToolSelector';
+import { useBackgroundStreaming } from '../hooks/useBackgroundStreaming';
+import { STREAMING_CONFIG } from '../lib/streamingConfig';
+import { createSilentAudioTrack } from '../lib/audioTrackManager';
+import { streamStabilizer } from '../lib/streamStabilizer';
 
 export interface DrawingCanvasProps {
   /**
@@ -91,12 +91,12 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
   height = STREAMING_CONFIG.HEIGHT,
   fps = STREAMING_CONFIG.FPS,
   initialBrushSize = 20,
-  initialColor = "#000000",
+  initialColor = '#000000',
   customColors,
   enableStreaming = true,
   enableBackgroundStreaming = true,
-  className = "",
-  canvasClassName = "",
+  className = '',
+  canvasClassName = '',
   onDrawingStart,
   onDrawingEnd,
   onClear,
@@ -122,7 +122,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
   const [brushSize, setBrushSize] = useState(initialBrushSize);
   const [selectedColor, setSelectedColor] = useState(initialColor);
   const [fadingEnabled, setFadingEnabled] = useState(false);
-  const [selectedTool, setSelectedTool] = useState<DrawingTool>("brush");
+  const [selectedTool, setSelectedTool] = useState<DrawingTool>('brush');
   const [canUndo, setCanUndo] = useState(false);
 
   // Background frame rendering for stream stability
@@ -130,13 +130,13 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     // Keep-alive pixel to ensure stream stays active
     const time = Date.now();
     const pixelColor =
-      time % 2 === 0 ? "rgba(255, 0, 0, 0.01)" : "rgba(0, 255, 0, 0.01)";
+      time % 2 === 0 ? 'rgba(255, 0, 0, 0.01)' : 'rgba(0, 255, 0, 0.01)';
     ctx.fillStyle = pixelColor;
     ctx.fillRect(canvas.width - 1, canvas.height - 1, 1, 1);
   }, []);
@@ -159,7 +159,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const fadeFrame = () => {
@@ -168,8 +168,8 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         return;
       }
 
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       fadeAnimationRef.current = requestAnimationFrame(fadeFrame);
@@ -213,7 +213,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     historyIndexRef.current--;
     const previousState = historyRef.current[historyIndexRef.current];
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const img = new Image();
@@ -232,7 +232,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -291,7 +291,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       }
 
       ctx.putImageData(imageData, 0, 0);
-      setSelectedTool("brush");
+      setSelectedTool('brush');
       saveToHistory();
     },
     [saveToHistory]
@@ -301,11 +301,11 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = "#FFFFFF";
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     savedCanvasStateRef.current = null;
@@ -334,7 +334,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         validateAudio: false,
       });
     } catch (error) {
-      console.warn("Stream validation warning:", error);
+      console.warn('Stream validation warning:', error);
     }
 
     // Add silent audio track for compatibility
@@ -351,7 +351,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const canvas = canvasRef.current;
     if (!canvas || !savedCanvasStateRef.current) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     isRestoringRef.current = true;
@@ -379,18 +379,18 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       previewCanvas.height = height;
     }
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     if (savedCanvasStateRef.current) {
       restoreCanvasState();
     } else {
-      ctx.fillStyle = "white";
+      ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.strokeStyle = selectedColor;
     ctx.lineWidth = brushSize;
 
@@ -419,13 +419,13 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     ctx.strokeStyle = selectedColor;
     ctx.lineWidth = brushSize;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
   }, [selectedColor, brushSize]);
 
   useEffect(() => {
@@ -451,22 +451,22 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       e.preventDefault();
     };
 
-    canvas.addEventListener("touchstart", preventDefaultTouch, {
+    canvas.addEventListener('touchstart', preventDefaultTouch, {
       passive: false,
     });
-    canvas.addEventListener("touchmove", preventDefaultTouch, {
+    canvas.addEventListener('touchmove', preventDefaultTouch, {
       passive: false,
     });
-    canvas.addEventListener("touchend", preventDefaultTouch, {
+    canvas.addEventListener('touchend', preventDefaultTouch, {
       passive: false,
     });
-    canvas.addEventListener("wheel", preventDefaultWheel, { passive: false });
+    canvas.addEventListener('wheel', preventDefaultWheel, { passive: false });
 
     return () => {
-      canvas.removeEventListener("touchstart", preventDefaultTouch);
-      canvas.removeEventListener("touchmove", preventDefaultTouch);
-      canvas.removeEventListener("touchend", preventDefaultTouch);
-      canvas.removeEventListener("wheel", preventDefaultWheel);
+      canvas.removeEventListener('touchstart', preventDefaultTouch);
+      canvas.removeEventListener('touchmove', preventDefaultTouch);
+      canvas.removeEventListener('touchend', preventDefaultTouch);
+      canvas.removeEventListener('wheel', preventDefaultWheel);
     };
   }, []);
 
@@ -483,7 +483,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
 
-      if ("touches" in e) {
+      if ('touches' in e) {
         const touch = e.touches[0] || e.changedTouches[0];
         return {
           x: (touch.clientX - rect.left) * scaleX,
@@ -510,7 +510,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       const canvas = isPreview ? previewCanvasRef.current : canvasRef.current;
       if (!canvas) return;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
       ctx.beginPath();
@@ -532,7 +532,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       const canvas = isPreview ? previewCanvasRef.current : canvasRef.current;
       if (!canvas) return;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
       const radius = Math.sqrt((endX - centerX) ** 2 + (endY - centerY) ** 2);
@@ -548,7 +548,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const canvas = previewCanvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -560,37 +560,37 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         | React.MouseEvent<HTMLCanvasElement>
         | React.TouchEvent<HTMLCanvasElement>
     ) => {
-      if ("touches" in e) {
+      if ('touches' in e) {
         e.preventDefault();
       }
 
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
       isDrawingRef.current = true;
       const pos = getEventPos(e);
 
-      if (selectedTool === "brush") {
+      if (selectedTool === 'brush') {
         ctx.beginPath();
         ctx.moveTo(pos.x, pos.y);
 
         if (fadingEnabledRef.current) {
           startFadeAnimation();
         }
-      } else if (selectedTool === "line" || selectedTool === "circle") {
+      } else if (selectedTool === 'line' || selectedTool === 'circle') {
         setStartPos(pos);
 
         const previewCanvas = previewCanvasRef.current;
         if (previewCanvas) {
-          const previewCtx = previewCanvas.getContext("2d");
+          const previewCtx = previewCanvas.getContext('2d');
           if (previewCtx) {
             previewCtx.strokeStyle = selectedColor;
             previewCtx.lineWidth = brushSize;
-            previewCtx.lineCap = "round";
-            previewCtx.lineJoin = "round";
+            previewCtx.lineCap = 'round';
+            previewCtx.lineJoin = 'round';
           }
         }
       }
@@ -615,23 +615,23 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     ) => {
       if (!isDrawingRef.current) return;
 
-      if ("touches" in e) {
+      if ('touches' in e) {
         e.preventDefault();
       }
 
       const pos = getEventPos(e);
 
-      if (selectedTool === "brush") {
+      if (selectedTool === 'brush') {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
         ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
       } else if (
-        (selectedTool === "line" || selectedTool === "circle") &&
+        (selectedTool === 'line' || selectedTool === 'circle') &&
         startPos
       ) {
         clearPreview();
@@ -639,17 +639,17 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         const previewCanvas = previewCanvasRef.current;
         if (!previewCanvas) return;
 
-        const previewCtx = previewCanvas.getContext("2d");
+        const previewCtx = previewCanvas.getContext('2d');
         if (!previewCtx) return;
 
         previewCtx.strokeStyle = selectedColor;
         previewCtx.lineWidth = brushSize;
-        previewCtx.lineCap = "round";
-        previewCtx.lineJoin = "round";
+        previewCtx.lineCap = 'round';
+        previewCtx.lineJoin = 'round';
 
-        if (selectedTool === "line") {
+        if (selectedTool === 'line') {
           drawLine(startPos.x, startPos.y, pos.x, pos.y, true);
-        } else if (selectedTool === "circle") {
+        } else if (selectedTool === 'circle') {
           drawCircle(startPos.x, startPos.y, pos.x, pos.y, true);
         }
       }
@@ -676,24 +676,24 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         isDrawingRef.current = false;
 
         if (
-          (selectedTool === "line" || selectedTool === "circle") &&
+          (selectedTool === 'line' || selectedTool === 'circle') &&
           startPos &&
           e
         ) {
           const canvas = canvasRef.current;
           if (canvas) {
-            const ctx = canvas.getContext("2d");
+            const ctx = canvas.getContext('2d');
             if (ctx) {
               ctx.strokeStyle = selectedColor;
               ctx.lineWidth = brushSize;
-              ctx.lineCap = "round";
-              ctx.lineJoin = "round";
+              ctx.lineCap = 'round';
+              ctx.lineJoin = 'round';
 
               const pos = getEventPos(e);
 
-              if (selectedTool === "line") {
+              if (selectedTool === 'line') {
                 drawLine(startPos.x, startPos.y, pos.x, pos.y);
-              } else if (selectedTool === "circle") {
+              } else if (selectedTool === 'circle') {
                 drawCircle(startPos.x, startPos.y, pos.x, pos.y);
               }
             }
@@ -729,8 +729,8 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         | React.MouseEvent<HTMLCanvasElement>
         | React.TouchEvent<HTMLCanvasElement>
     ) => {
-      if (selectedTool === "fill") {
-        if ("touches" in e) {
+      if (selectedTool === 'fill') {
+        if ('touches' in e) {
           e.preventDefault();
         }
 
@@ -747,86 +747,86 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         <div
           className="w-full aspect-square border border-gray-300 rounded-t-lg overflow-hidden flex items-center justify-center relative bg-white"
           style={{
-            touchAction: "none",
-            WebkitUserSelect: "none",
-            userSelect: "none",
+            touchAction: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
           }}
         >
           <canvas
             ref={canvasRef}
             className={`block w-full h-full ${
-              selectedTool === "brush" ||
-              selectedTool === "line" ||
-              selectedTool === "circle"
-                ? "cursor-crosshair"
-                : "cursor-pointer"
+              selectedTool === 'brush' ||
+              selectedTool === 'line' ||
+              selectedTool === 'circle'
+                ? 'cursor-crosshair'
+                : 'cursor-pointer'
             } ${canvasClassName}`}
             style={{
-              touchAction: "none",
-              WebkitUserSelect: "none",
-              userSelect: "none",
+              touchAction: 'none',
+              WebkitUserSelect: 'none',
+              userSelect: 'none',
             }}
             onMouseDown={
-              selectedTool === "brush" ||
-              selectedTool === "line" ||
-              selectedTool === "circle"
+              selectedTool === 'brush' ||
+              selectedTool === 'line' ||
+              selectedTool === 'circle'
                 ? startDrawing
                 : undefined
             }
             onMouseMove={
-              selectedTool === "brush" ||
-              selectedTool === "line" ||
-              selectedTool === "circle"
+              selectedTool === 'brush' ||
+              selectedTool === 'line' ||
+              selectedTool === 'circle'
                 ? draw
                 : undefined
             }
             onMouseUp={
-              selectedTool === "brush" ||
-              selectedTool === "line" ||
-              selectedTool === "circle"
+              selectedTool === 'brush' ||
+              selectedTool === 'line' ||
+              selectedTool === 'circle'
                 ? stopDrawing
                 : undefined
             }
             onMouseLeave={
-              selectedTool === "brush" ||
-              selectedTool === "line" ||
-              selectedTool === "circle"
+              selectedTool === 'brush' ||
+              selectedTool === 'line' ||
+              selectedTool === 'circle'
                 ? stopDrawing
                 : undefined
             }
             onTouchStart={
-              selectedTool === "brush" ||
-              selectedTool === "line" ||
-              selectedTool === "circle"
+              selectedTool === 'brush' ||
+              selectedTool === 'line' ||
+              selectedTool === 'circle'
                 ? startDrawing
-                : selectedTool === "fill"
-                ? handleCanvasClick
-                : undefined
+                : selectedTool === 'fill'
+                  ? handleCanvasClick
+                  : undefined
             }
             onTouchMove={
-              selectedTool === "brush" ||
-              selectedTool === "line" ||
-              selectedTool === "circle"
+              selectedTool === 'brush' ||
+              selectedTool === 'line' ||
+              selectedTool === 'circle'
                 ? draw
                 : undefined
             }
             onTouchEnd={
-              selectedTool === "brush" ||
-              selectedTool === "line" ||
-              selectedTool === "circle"
+              selectedTool === 'brush' ||
+              selectedTool === 'line' ||
+              selectedTool === 'circle'
                 ? stopDrawing
                 : undefined
             }
-            onClick={selectedTool === "fill" ? handleCanvasClick : undefined}
+            onClick={selectedTool === 'fill' ? handleCanvasClick : undefined}
           />
           {/* Preview canvas for shape tools */}
           <canvas
             ref={previewCanvasRef}
             className="absolute top-0 left-0 w-full h-full pointer-events-none"
             style={{
-              width: "100%",
-              height: "100%",
-              touchAction: "none",
+              width: '100%',
+              height: '100%',
+              touchAction: 'none',
             }}
           />
         </div>

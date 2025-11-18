@@ -25,7 +25,7 @@ class StreamStabilizer {
 
   async validateStreamStability(
     stream: MediaStream,
-    options: StreamValidationOptions = {},
+    options: StreamValidationOptions = {}
   ): Promise<StreamStabilizationResult> {
     const {
       minStableFrames = 5,
@@ -41,7 +41,7 @@ class StreamStabilizer {
         isStable: false,
         frameCount: 0,
         timeElapsed: 0,
-        error: "Stream is not active",
+        error: 'Stream is not active',
       };
     }
 
@@ -53,7 +53,7 @@ class StreamStabilizer {
         isStable: false,
         frameCount: 0,
         timeElapsed: 0,
-        error: "No video tracks found",
+        error: 'No video tracks found',
       };
     }
 
@@ -62,13 +62,13 @@ class StreamStabilizer {
         isStable: false,
         frameCount: 0,
         timeElapsed: 0,
-        error: "No audio tracks found",
+        error: 'No audio tracks found',
       };
     }
 
     // For simplicity, we'll consider the stream stable if tracks are live
     const videoTrack = videoTracks[0];
-    if (videoTrack.readyState !== "live") {
+    if (videoTrack.readyState !== 'live') {
       return {
         isStable: false,
         frameCount: 0,
@@ -78,9 +78,9 @@ class StreamStabilizer {
     }
 
     // Simple stability check - wait a bit and verify stream is still active
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    if (stream.active && videoTrack.readyState === "live") {
+    if (stream.active && videoTrack.readyState === 'live') {
       return {
         isStable: true,
         frameCount: minStableFrames,
@@ -92,27 +92,27 @@ class StreamStabilizer {
       isStable: false,
       frameCount: 0,
       timeElapsed: Date.now() - startTime,
-      error: "Stream became inactive during validation",
+      error: 'Stream became inactive during validation',
     };
   }
 
   async waitForCanvasStreamStability(
     canvas: HTMLCanvasElement,
-    fps: number = 30,
+    fps: number = 30
   ): Promise<boolean> {
     const frameInterval = 1000 / fps;
     const waitTime = Math.max(frameInterval * 2, 100);
 
     // Wait for canvas to be ready
-    await new Promise(resolve => setTimeout(resolve, waitTime));
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
 
     try {
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       if (!ctx) return false;
 
       // Check if canvas has any content
       const imageData = ctx.getImageData(0, 0, 1, 1);
-      return imageData.data.some(value => value > 0);
+      return imageData.data.some((value) => value > 0);
     } catch (error) {
       return false;
     }

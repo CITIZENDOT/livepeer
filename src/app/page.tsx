@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import Image from 'next/image';
-import { useState, useRef } from 'react';
-import { DrawingCanvas } from '../components/DrawingCanvas';
+import Image from 'next/image'
+import { useState, useRef } from 'react'
+import { DrawingCanvas } from '../components/DrawingCanvas'
 
 // Custom color palette
 const customColors = [
@@ -12,66 +12,66 @@ const customColors = [
   { name: 'Royal Purple', value: '#663399' },
   { name: 'Hot Pink', value: '#FF69B4' },
   { name: 'Golden Yellow', value: '#FFD700' },
-];
+]
 
 export default function Home() {
   const [activeExample, setActiveExample] = useState<
     'basic' | 'custom' | 'recording' | 'streaming'
-  >('streaming');
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorder = useRef<MediaRecorder | null>(null);
-  const chunks = useRef<Blob[]>([]);
+  >('streaming')
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null)
+  const [isRecording, setIsRecording] = useState(false)
+  const mediaRecorder = useRef<MediaRecorder | null>(null)
+  const chunks = useRef<Blob[]>([])
 
   // Basic example stream handler
   const handleBasicStreamReady = (stream: MediaStream) => {
-    console.log('Basic stream ready:', stream);
-  };
+    console.log('Basic stream ready:', stream)
+  }
 
   // Streaming example handler
   const handleStreamingReady = (stream: MediaStream) => {
-    setLocalStream(stream);
+    setLocalStream(stream)
     console.log('Streaming ready with tracks:', {
       video: stream.getVideoTracks()[0]?.getSettings(),
       audio: stream.getAudioTracks()[0]
         ? 'Silent audio track included'
         : 'No audio',
-    });
-  };
+    })
+  }
 
   // Recording example handler
   const handleRecordingStreamReady = (stream: MediaStream) => {
     mediaRecorder.current = new MediaRecorder(stream, {
       mimeType: 'video/webm',
-    });
+    })
 
     mediaRecorder.current.ondataavailable = (e) => {
       if (e.data.size > 0) {
-        chunks.current.push(e.data);
+        chunks.current.push(e.data)
       }
-    };
+    }
 
     mediaRecorder.current.onstop = () => {
-      const blob = new Blob(chunks.current, { type: 'video/webm' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `drawing-${new Date().toISOString()}.webm`;
-      a.click();
-      chunks.current = [];
-    };
-  };
+      const blob = new Blob(chunks.current, { type: 'video/webm' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `drawing-${new Date().toISOString()}.webm`
+      a.click()
+      chunks.current = []
+    }
+  }
 
   const toggleRecording = () => {
-    if (!mediaRecorder.current) return;
+    if (!mediaRecorder.current) return
 
     if (isRecording) {
-      mediaRecorder.current.stop();
+      mediaRecorder.current.stop()
     } else {
-      mediaRecorder.current.start();
+      mediaRecorder.current.start()
     }
-    setIsRecording(!isRecording);
-  };
+    setIsRecording(!isRecording)
+  }
   return (
     <div className="app-container">
       <header className="app-header">
@@ -210,7 +210,7 @@ export default function Home() {
                     muted
                     ref={(video) => {
                       if (video && localStream) {
-                        video.srcObject = localStream;
+                        video.srcObject = localStream
                       }
                     }}
                     className="preview-video"
@@ -241,5 +241,5 @@ export default function Home() {
         </div>
       </footer>
     </div>
-  );
+  )
 }

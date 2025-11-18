@@ -1,10 +1,10 @@
-import React from 'react';
+import React from 'react'
 
 interface ColorPaletteProps {
-  selectedColor: string;
-  onColorChange: (color: string) => void;
-  colors?: Array<{ name: string; value: string }>;
-  className?: string;
+  selectedColor: string
+  onColorChange: (color: string) => void
+  colors?: Array<{ name: string; value: string }>
+  className?: string
 }
 
 const DEFAULT_COLORS = [
@@ -17,7 +17,7 @@ const DEFAULT_COLORS = [
   { name: 'Orange', value: '#FFA500' },
   { name: 'Pink', value: '#FF69B4' },
   { name: 'Yellow', value: '#FFFF00' },
-];
+]
 
 export const ColorPalette: React.FC<ColorPaletteProps> = ({
   selectedColor,
@@ -45,5 +45,5 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
         ))}
       </div>
     </div>
-  );
-};
+  )
+}

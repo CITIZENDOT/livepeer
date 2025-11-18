@@ -1,12 +1,12 @@
-import React from 'react';
-import { PaintBucket } from 'lucide-react';
+import React from 'react'
+import { PaintBucket } from 'lucide-react'
 
-export type DrawingTool = 'brush' | 'line' | 'circle' | 'fill';
+export type DrawingTool = 'brush' | 'line' | 'circle' | 'fill'
 
 interface ToolSelectorProps {
-  selectedTool: DrawingTool;
-  onToolChange: (tool: DrawingTool) => void;
-  className?: string;
+  selectedTool: DrawingTool
+  onToolChange: (tool: DrawingTool) => void
+  className?: string
 }
 
 export const ToolSelector: React.FC<ToolSelectorProps> = ({
@@ -19,7 +19,7 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({
       selectedTool === tool
         ? 'bg-blue-600 text-white'
         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-    }`;
+    }`
 
   return (
     <div
@@ -73,5 +73,5 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({
         <PaintBucket size={16} />
       </button>
     </div>
-  );
-};
+  )
+}

@@ -5,4 +5,4 @@ export const STREAMING_CONFIG = {
   // Bitrate settings for streams
   VIDEO_BITRATE: 2000000, // 2.0 Mbps
   AUDIO_BITRATE: 128000, // 128 kbps
-};
+}

@@ -1,17 +1,17 @@
-import React from 'react';
-import { Button } from '../ui/button';
-import { Label } from '../ui/label';
-import { Slider } from '../ui/slider';
+import React from 'react'
+import { Button } from '../ui/button'
+import { Label } from '../ui/label'
+import { Slider } from '../ui/slider'
 
 interface BrushControlsProps {
-  brushSize: number;
-  onBrushSizeChange: (size: number) => void;
-  fadingEnabled: boolean;
-  onFadingToggle: (enabled: boolean) => void;
-  canUndo: boolean;
-  onUndo: () => void;
-  onClear: () => void;
-  className?: string;
+  brushSize: number
+  onBrushSizeChange: (size: number) => void
+  fadingEnabled: boolean
+  onFadingToggle: (enabled: boolean) => void
+  canUndo: boolean
+  onUndo: () => void
+  onClear: () => void
+  className?: string
 }
 
 export const BrushControls: React.FC<BrushControlsProps> = ({
@@ -81,5 +81,5 @@ export const BrushControls: React.FC<BrushControlsProps> = ({
         </Button>
       </div>
     </div>
-  );
-};
+  )
+}

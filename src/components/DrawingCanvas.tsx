@@ -1,88 +1,88 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ColorPalette } from './ColorPalette';
-import { BrushControls } from './BrushControls';
-import { ToolSelector, type DrawingTool } from './ToolSelector';
-import { useBackgroundStreaming } from '../hooks/useBackgroundStreaming';
-import { STREAMING_CONFIG } from '../lib/streamingConfig';
-import { createSilentAudioTrack } from '../lib/audioTrackManager';
-import { streamStabilizer } from '../lib/streamStabilizer';
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { ColorPalette } from './ColorPalette'
+import { BrushControls } from './BrushControls'
+import { ToolSelector, type DrawingTool } from './ToolSelector'
+import { useBackgroundStreaming } from '../hooks/useBackgroundStreaming'
+import { STREAMING_CONFIG } from '../lib/streamingConfig'
+import { createSilentAudioTrack } from '../lib/audioTrackManager'
+import { streamStabilizer } from '../lib/streamStabilizer'
 
 export interface DrawingCanvasProps {
   /**
    * Callback when the canvas stream is ready
    */
-  onStreamReady?: (stream: MediaStream) => void;
+  onStreamReady?: (stream: MediaStream) => void
 
   /**
    * Canvas dimensions (default: 512x512)
    */
-  width?: number;
-  height?: number;
+  width?: number
+  height?: number
 
   /**
    * Frame rate for the stream (default: 30)
    */
-  fps?: number;
+  fps?: number
 
   /**
    * Initial brush size (default: 20)
    */
-  initialBrushSize?: number;
+  initialBrushSize?: number
 
   /**
    * Initial selected color (default: #000000)
    */
-  initialColor?: string;
+  initialColor?: string
 
   /**
    * Custom color palette
    */
-  customColors?: Array<{ name: string; value: string }>;
+  customColors?: Array<{ name: string; value: string }>
 
   /**
    * Enable/disable streaming features (default: true)
    */
-  enableStreaming?: boolean;
+  enableStreaming?: boolean
 
   /**
    * Enable/disable background streaming when tab is hidden (default: true)
    */
-  enableBackgroundStreaming?: boolean;
+  enableBackgroundStreaming?: boolean
 
   /**
    * Custom styles for the container
    */
-  className?: string;
+  className?: string
 
   /**
    * Canvas styles
    */
-  canvasClassName?: string;
+  canvasClassName?: string
 
   /**
    * Callback when drawing starts
    */
-  onDrawingStart?: () => void;
+  onDrawingStart?: () => void
 
   /**
    * Callback when drawing ends
    */
-  onDrawingEnd?: () => void;
+  onDrawingEnd?: () => void
 
   /**
    * Callback when canvas is cleared
    */
-  onClear?: () => void;
+  onClear?: () => void
 
   /**
    * Callback when undo is performed
    */
-  onUndo?: () => void;
+  onUndo?: () => void
 
   /**
    * Maximum history size for undo (default: 20)
    */
-  maxHistorySize?: number;
+  maxHistorySize?: number
 }
 
 export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
@@ -103,43 +103,43 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
   onUndo,
   maxHistorySize = 20,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isDrawingRef = useRef(false);
-  const streamRef = useRef<MediaStream | null>(null);
-  const streamCreatedRef = useRef(false);
-  const fadingEnabledRef = useRef(false);
-  const fadeAnimationRef = useRef<number | null>(null);
-  const historyRef = useRef<string[]>([]);
-  const historyIndexRef = useRef(-1);
-  const savedCanvasStateRef = useRef<string | null>(null);
-  const isRestoringRef = useRef(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const isDrawingRef = useRef(false)
+  const streamRef = useRef<MediaStream | null>(null)
+  const streamCreatedRef = useRef(false)
+  const fadingEnabledRef = useRef(false)
+  const fadeAnimationRef = useRef<number | null>(null)
+  const historyRef = useRef<string[]>([])
+  const historyIndexRef = useRef(-1)
+  const savedCanvasStateRef = useRef<string | null>(null)
+  const isRestoringRef = useRef(false)
 
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(
     null
-  );
-  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  )
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null)
 
-  const [brushSize, setBrushSize] = useState(initialBrushSize);
-  const [selectedColor, setSelectedColor] = useState(initialColor);
-  const [fadingEnabled, setFadingEnabled] = useState(false);
-  const [selectedTool, setSelectedTool] = useState<DrawingTool>('brush');
-  const [canUndo, setCanUndo] = useState(false);
+  const [brushSize, setBrushSize] = useState(initialBrushSize)
+  const [selectedColor, setSelectedColor] = useState(initialColor)
+  const [fadingEnabled, setFadingEnabled] = useState(false)
+  const [selectedTool, setSelectedTool] = useState<DrawingTool>('brush')
+  const [canUndo, setCanUndo] = useState(false)
 
   // Background frame rendering for stream stability
   const renderBackgroundFrame = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
     // Keep-alive pixel to ensure stream stays active
-    const time = Date.now();
+    const time = Date.now()
     const pixelColor =
-      time % 2 === 0 ? 'rgba(255, 0, 0, 0.01)' : 'rgba(0, 255, 0, 0.01)';
-    ctx.fillStyle = pixelColor;
-    ctx.fillRect(canvas.width - 1, canvas.height - 1, 1, 1);
-  }, []);
+      time % 2 === 0 ? 'rgba(255, 0, 0, 0.01)' : 'rgba(0, 255, 0, 0.01)'
+    ctx.fillStyle = pixelColor
+    ctx.fillRect(canvas.width - 1, canvas.height - 1, 1, 1)
+  }, [])
 
   const { isBackgroundStreaming } = useBackgroundStreaming({
     onBackgroundFrame: renderBackgroundFrame,
@@ -147,184 +147,184 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     enabled: enableStreaming && enableBackgroundStreaming,
     canvas: canvasRef.current,
     stream: streamRef.current,
-  });
+  })
 
   useEffect(() => {
-    fadingEnabledRef.current = fadingEnabled;
-  }, [fadingEnabled]);
+    fadingEnabledRef.current = fadingEnabled
+  }, [fadingEnabled])
 
   const startFadeAnimation = useCallback(() => {
-    if (!fadingEnabledRef.current || fadeAnimationRef.current) return;
+    if (!fadingEnabledRef.current || fadeAnimationRef.current) return
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
     const fadeFrame = () => {
       if (!fadingEnabledRef.current || !isDrawingRef.current) {
-        fadeAnimationRef.current = null;
-        return;
+        fadeAnimationRef.current = null
+        return
       }
 
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'source-over'
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      fadeAnimationRef.current = requestAnimationFrame(fadeFrame);
-    };
+      fadeAnimationRef.current = requestAnimationFrame(fadeFrame)
+    }
 
-    fadeAnimationRef.current = requestAnimationFrame(fadeFrame);
-  }, []);
+    fadeAnimationRef.current = requestAnimationFrame(fadeFrame)
+  }, [])
 
   const stopFadeAnimation = useCallback(() => {
     if (fadeAnimationRef.current) {
-      cancelAnimationFrame(fadeAnimationRef.current);
-      fadeAnimationRef.current = null;
+      cancelAnimationFrame(fadeAnimationRef.current)
+      fadeAnimationRef.current = null
     }
-  }, []);
+  }, [])
 
   const saveToHistory = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || isRestoringRef.current) return;
+    const canvas = canvasRef.current
+    if (!canvas || isRestoringRef.current) return
 
-    const dataURL = canvas.toDataURL();
+    const dataURL = canvas.toDataURL()
     historyRef.current = historyRef.current.slice(
       0,
       historyIndexRef.current + 1
-    );
-    historyRef.current.push(dataURL);
-    historyIndexRef.current = historyRef.current.length - 1;
+    )
+    historyRef.current.push(dataURL)
+    historyIndexRef.current = historyRef.current.length - 1
 
     if (historyRef.current.length > maxHistorySize) {
-      historyRef.current = historyRef.current.slice(1);
-      historyIndexRef.current = historyRef.current.length - 1;
+      historyRef.current = historyRef.current.slice(1)
+      historyIndexRef.current = historyRef.current.length - 1
     }
 
-    savedCanvasStateRef.current = dataURL;
-    setCanUndo(historyIndexRef.current > 0);
-  }, [maxHistorySize]);
+    savedCanvasStateRef.current = dataURL
+    setCanUndo(historyIndexRef.current > 0)
+  }, [maxHistorySize])
 
   const undo = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || historyIndexRef.current <= 0) return;
+    const canvas = canvasRef.current
+    if (!canvas || historyIndexRef.current <= 0) return
 
-    historyIndexRef.current--;
-    const previousState = historyRef.current[historyIndexRef.current];
+    historyIndexRef.current--
+    const previousState = historyRef.current[historyIndexRef.current]
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    const img = new Image();
+    const img = new Image()
     img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-      onUndo?.();
-    };
-    img.src = previousState;
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, 0, 0)
+      onUndo?.()
+    }
+    img.src = previousState
 
-    setCanUndo(historyIndexRef.current > 0);
-  }, [onUndo]);
+    setCanUndo(historyIndexRef.current > 0)
+  }, [onUndo])
 
   const floodFill = useCallback(
     (startX: number, startY: number, fillColor: string) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
+      const canvas = canvasRef.current
+      if (!canvas) return
 
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
 
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const data = imageData.data
 
       const hexToRgb = (hex: string) => {
-        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
         return result
           ? {
               r: parseInt(result[1], 16),
               g: parseInt(result[2], 16),
               b: parseInt(result[3], 16),
             }
-          : { r: 0, g: 0, b: 0 };
-      };
+          : { r: 0, g: 0, b: 0 }
+      }
 
-      const fillRgb = hexToRgb(fillColor);
-      const startIndex = (startY * canvas.width + startX) * 4;
-      const targetR = data[startIndex];
-      const targetG = data[startIndex + 1];
-      const targetB = data[startIndex + 2];
+      const fillRgb = hexToRgb(fillColor)
+      const startIndex = (startY * canvas.width + startX) * 4
+      const targetR = data[startIndex]
+      const targetG = data[startIndex + 1]
+      const targetB = data[startIndex + 2]
 
       if (
         targetR === fillRgb.r &&
         targetG === fillRgb.g &&
         targetB === fillRgb.b
       ) {
-        return;
+        return
       }
 
-      const stack = [[startX, startY]];
+      const stack = [[startX, startY]]
 
       while (stack.length > 0) {
-        const [x, y] = stack.pop()!;
+        const [x, y] = stack.pop()!
 
-        if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) continue;
+        if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) continue
 
-        const index = (y * canvas.width + x) * 4;
+        const index = (y * canvas.width + x) * 4
 
         if (
           data[index] !== targetR ||
           data[index + 1] !== targetG ||
           data[index + 2] !== targetB
         )
-          continue;
+          continue
 
-        data[index] = fillRgb.r;
-        data[index + 1] = fillRgb.g;
-        data[index + 2] = fillRgb.b;
-        data[index + 3] = 255;
+        data[index] = fillRgb.r
+        data[index + 1] = fillRgb.g
+        data[index + 2] = fillRgb.b
+        data[index + 3] = 255
 
-        stack.push([x + 1, y]);
-        stack.push([x - 1, y]);
-        stack.push([x, y + 1]);
-        stack.push([x, y - 1]);
+        stack.push([x + 1, y])
+        stack.push([x - 1, y])
+        stack.push([x, y + 1])
+        stack.push([x, y - 1])
       }
 
-      ctx.putImageData(imageData, 0, 0);
-      setSelectedTool('brush');
-      saveToHistory();
+      ctx.putImageData(imageData, 0, 0)
+      setSelectedTool('brush')
+      saveToHistory()
     },
     [saveToHistory]
-  );
+  )
 
   const clearCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'source-over'
+    ctx.fillStyle = '#FFFFFF'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    savedCanvasStateRef.current = null;
-    saveToHistory();
-    onClear?.();
-  }, [saveToHistory, onClear]);
+    savedCanvasStateRef.current = null
+    saveToHistory()
+    onClear?.()
+  }, [saveToHistory, onClear])
 
   const createStream = useCallback(async () => {
-    if (!enableStreaming) return;
+    if (!enableStreaming) return
 
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current
     if (!canvas || streamCreatedRef.current) {
-      return;
+      return
     }
 
     // Wait for canvas to stabilize before creating stream
-    await streamStabilizer.waitForCanvasStreamStability(canvas, fps);
+    await streamStabilizer.waitForCanvasStreamStability(canvas, fps)
 
-    const stream = canvas.captureStream(fps);
+    const stream = canvas.captureStream(fps)
 
     // Validate stream stability
     try {
@@ -332,72 +332,72 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         minStableFrames: 3,
         timeoutMs: 2000,
         validateAudio: false,
-      });
+      })
     } catch (error) {
-      console.warn('Stream validation warning:', error);
+      console.warn('Stream validation warning:', error)
     }
 
     // Add silent audio track for compatibility
-    const audioTrack = createSilentAudioTrack();
-    stream.addTrack(audioTrack);
+    const audioTrack = createSilentAudioTrack()
+    stream.addTrack(audioTrack)
 
-    streamRef.current = stream;
-    streamCreatedRef.current = true;
+    streamRef.current = stream
+    streamCreatedRef.current = true
 
-    onStreamReady?.(stream);
-  }, [onStreamReady, fps, enableStreaming]);
+    onStreamReady?.(stream)
+  }, [onStreamReady, fps, enableStreaming])
 
   const restoreCanvasState = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !savedCanvasStateRef.current) return;
+    const canvas = canvasRef.current
+    if (!canvas || !savedCanvasStateRef.current) return
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    isRestoringRef.current = true;
-    const img = new Image();
+    isRestoringRef.current = true
+    const img = new Image()
     img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-      isRestoringRef.current = false;
-    };
-    img.src = savedCanvasStateRef.current;
-  }, []);
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(img, 0, 0)
+      isRestoringRef.current = false
+    }
+    img.src = savedCanvasStateRef.current
+  }, [])
 
   const setupCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    const previewCanvas = previewCanvasRef.current;
+    const canvas = canvasRef.current
+    const previewCanvas = previewCanvasRef.current
     if (!canvas) {
-      return;
+      return
     }
 
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = width
+    canvas.height = height
 
     if (previewCanvas) {
-      previewCanvas.width = width;
-      previewCanvas.height = height;
+      previewCanvas.width = width
+      previewCanvas.height = height
     }
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
     if (savedCanvasStateRef.current) {
-      restoreCanvasState();
+      restoreCanvasState()
     } else {
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'white'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
     }
 
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.strokeStyle = selectedColor;
-    ctx.lineWidth = brushSize;
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+    ctx.strokeStyle = selectedColor
+    ctx.lineWidth = brushSize
 
     if (!streamCreatedRef.current && enableStreaming) {
-      createStream();
+      createStream()
       if (!savedCanvasStateRef.current) {
-        setTimeout(() => saveToHistory(), 100);
+        setTimeout(() => saveToHistory(), 100)
       }
     }
   }, [
@@ -409,66 +409,66 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     width,
     height,
     enableStreaming,
-  ]);
+  ])
 
   useEffect(() => {
-    setupCanvas();
-  }, [setupCanvas]);
+    setupCanvas()
+  }, [setupCanvas])
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    ctx.strokeStyle = selectedColor;
-    ctx.lineWidth = brushSize;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-  }, [selectedColor, brushSize]);
+    ctx.strokeStyle = selectedColor
+    ctx.lineWidth = brushSize
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+  }, [selectedColor, brushSize])
 
   useEffect(() => {
     if (!fadingEnabled) {
-      stopFadeAnimation();
+      stopFadeAnimation()
     }
 
     return () => {
-      stopFadeAnimation();
-    };
-  }, [fadingEnabled, stopFadeAnimation]);
+      stopFadeAnimation()
+    }
+  }, [fadingEnabled, stopFadeAnimation])
 
   // Touch event prevention
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current
+    if (!canvas) return
 
     const preventDefaultTouch = (e: TouchEvent) => {
-      e.preventDefault();
-    };
+      e.preventDefault()
+    }
 
     const preventDefaultWheel = (e: WheelEvent) => {
-      e.preventDefault();
-    };
+      e.preventDefault()
+    }
 
     canvas.addEventListener('touchstart', preventDefaultTouch, {
       passive: false,
-    });
+    })
     canvas.addEventListener('touchmove', preventDefaultTouch, {
       passive: false,
-    });
+    })
     canvas.addEventListener('touchend', preventDefaultTouch, {
       passive: false,
-    });
-    canvas.addEventListener('wheel', preventDefaultWheel, { passive: false });
+    })
+    canvas.addEventListener('wheel', preventDefaultWheel, { passive: false })
 
     return () => {
-      canvas.removeEventListener('touchstart', preventDefaultTouch);
-      canvas.removeEventListener('touchmove', preventDefaultTouch);
-      canvas.removeEventListener('touchend', preventDefaultTouch);
-      canvas.removeEventListener('wheel', preventDefaultWheel);
-    };
-  }, []);
+      canvas.removeEventListener('touchstart', preventDefaultTouch)
+      canvas.removeEventListener('touchmove', preventDefaultTouch)
+      canvas.removeEventListener('touchend', preventDefaultTouch)
+      canvas.removeEventListener('wheel', preventDefaultWheel)
+    }
+  }, [])
 
   const getEventPos = useCallback(
     (
@@ -476,28 +476,28 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         | React.MouseEvent<HTMLCanvasElement>
         | React.TouchEvent<HTMLCanvasElement>
     ) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return { x: 0, y: 0 };
+      const canvas = canvasRef.current
+      if (!canvas) return { x: 0, y: 0 }
 
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
+      const rect = canvas.getBoundingClientRect()
+      const scaleX = canvas.width / rect.width
+      const scaleY = canvas.height / rect.height
 
       if ('touches' in e) {
-        const touch = e.touches[0] || e.changedTouches[0];
+        const touch = e.touches[0] || e.changedTouches[0]
         return {
           x: (touch.clientX - rect.left) * scaleX,
           y: (touch.clientY - rect.top) * scaleY,
-        };
+        }
       }
 
       return {
         x: (e.clientX - rect.left) * scaleX,
         y: (e.clientY - rect.top) * scaleY,
-      };
+      }
     },
     []
-  );
+  )
 
   const drawLine = useCallback(
     (
@@ -507,19 +507,19 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       endY: number,
       isPreview = false
     ) => {
-      const canvas = isPreview ? previewCanvasRef.current : canvasRef.current;
-      if (!canvas) return;
+      const canvas = isPreview ? previewCanvasRef.current : canvasRef.current
+      if (!canvas) return
 
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
 
-      ctx.beginPath();
-      ctx.moveTo(startX, startY);
-      ctx.lineTo(endX, endY);
-      ctx.stroke();
+      ctx.beginPath()
+      ctx.moveTo(startX, startY)
+      ctx.lineTo(endX, endY)
+      ctx.stroke()
     },
     []
-  );
+  )
 
   const drawCircle = useCallback(
     (
@@ -529,30 +529,30 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       endY: number,
       isPreview = false
     ) => {
-      const canvas = isPreview ? previewCanvasRef.current : canvasRef.current;
-      if (!canvas) return;
+      const canvas = isPreview ? previewCanvasRef.current : canvasRef.current
+      if (!canvas) return
 
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
 
-      const radius = Math.sqrt((endX - centerX) ** 2 + (endY - centerY) ** 2);
+      const radius = Math.sqrt((endX - centerX) ** 2 + (endY - centerY) ** 2)
 
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-      ctx.stroke();
+      ctx.beginPath()
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI)
+      ctx.stroke()
     },
     []
-  );
+  )
 
   const clearPreview = useCallback(() => {
-    const canvas = previewCanvasRef.current;
-    if (!canvas) return;
+    const canvas = previewCanvasRef.current
+    if (!canvas) return
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }, []);
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+  }, [])
 
   const startDrawing = useCallback(
     (
@@ -561,41 +561,41 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         | React.TouchEvent<HTMLCanvasElement>
     ) => {
       if ('touches' in e) {
-        e.preventDefault();
+        e.preventDefault()
       }
 
-      const canvas = canvasRef.current;
-      if (!canvas) return;
+      const canvas = canvasRef.current
+      if (!canvas) return
 
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
 
-      isDrawingRef.current = true;
-      const pos = getEventPos(e);
+      isDrawingRef.current = true
+      const pos = getEventPos(e)
 
       if (selectedTool === 'brush') {
-        ctx.beginPath();
-        ctx.moveTo(pos.x, pos.y);
+        ctx.beginPath()
+        ctx.moveTo(pos.x, pos.y)
 
         if (fadingEnabledRef.current) {
-          startFadeAnimation();
+          startFadeAnimation()
         }
       } else if (selectedTool === 'line' || selectedTool === 'circle') {
-        setStartPos(pos);
+        setStartPos(pos)
 
-        const previewCanvas = previewCanvasRef.current;
+        const previewCanvas = previewCanvasRef.current
         if (previewCanvas) {
-          const previewCtx = previewCanvas.getContext('2d');
+          const previewCtx = previewCanvas.getContext('2d')
           if (previewCtx) {
-            previewCtx.strokeStyle = selectedColor;
-            previewCtx.lineWidth = brushSize;
-            previewCtx.lineCap = 'round';
-            previewCtx.lineJoin = 'round';
+            previewCtx.strokeStyle = selectedColor
+            previewCtx.lineWidth = brushSize
+            previewCtx.lineCap = 'round'
+            previewCtx.lineJoin = 'round'
           }
         }
       }
 
-      onDrawingStart?.();
+      onDrawingStart?.()
     },
     [
       getEventPos,
@@ -605,7 +605,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       brushSize,
       onDrawingStart,
     ]
-  );
+  )
 
   const draw = useCallback(
     (
@@ -613,44 +613,44 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         | React.MouseEvent<HTMLCanvasElement>
         | React.TouchEvent<HTMLCanvasElement>
     ) => {
-      if (!isDrawingRef.current) return;
+      if (!isDrawingRef.current) return
 
       if ('touches' in e) {
-        e.preventDefault();
+        e.preventDefault()
       }
 
-      const pos = getEventPos(e);
+      const pos = getEventPos(e)
 
       if (selectedTool === 'brush') {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
+        const canvas = canvasRef.current
+        if (!canvas) return
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
 
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
+        ctx.lineTo(pos.x, pos.y)
+        ctx.stroke()
       } else if (
         (selectedTool === 'line' || selectedTool === 'circle') &&
         startPos
       ) {
-        clearPreview();
+        clearPreview()
 
-        const previewCanvas = previewCanvasRef.current;
-        if (!previewCanvas) return;
+        const previewCanvas = previewCanvasRef.current
+        if (!previewCanvas) return
 
-        const previewCtx = previewCanvas.getContext('2d');
-        if (!previewCtx) return;
+        const previewCtx = previewCanvas.getContext('2d')
+        if (!previewCtx) return
 
-        previewCtx.strokeStyle = selectedColor;
-        previewCtx.lineWidth = brushSize;
-        previewCtx.lineCap = 'round';
-        previewCtx.lineJoin = 'round';
+        previewCtx.strokeStyle = selectedColor
+        previewCtx.lineWidth = brushSize
+        previewCtx.lineCap = 'round'
+        previewCtx.lineJoin = 'round'
 
         if (selectedTool === 'line') {
-          drawLine(startPos.x, startPos.y, pos.x, pos.y, true);
+          drawLine(startPos.x, startPos.y, pos.x, pos.y, true)
         } else if (selectedTool === 'circle') {
-          drawCircle(startPos.x, startPos.y, pos.x, pos.y, true);
+          drawCircle(startPos.x, startPos.y, pos.x, pos.y, true)
         }
       }
     },
@@ -664,7 +664,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       selectedColor,
       brushSize,
     ]
-  );
+  )
 
   const stopDrawing = useCallback(
     (
@@ -673,39 +673,39 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         | React.TouchEvent<HTMLCanvasElement>
     ) => {
       if (isDrawingRef.current) {
-        isDrawingRef.current = false;
+        isDrawingRef.current = false
 
         if (
           (selectedTool === 'line' || selectedTool === 'circle') &&
           startPos &&
           e
         ) {
-          const canvas = canvasRef.current;
+          const canvas = canvasRef.current
           if (canvas) {
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d')
             if (ctx) {
-              ctx.strokeStyle = selectedColor;
-              ctx.lineWidth = brushSize;
-              ctx.lineCap = 'round';
-              ctx.lineJoin = 'round';
+              ctx.strokeStyle = selectedColor
+              ctx.lineWidth = brushSize
+              ctx.lineCap = 'round'
+              ctx.lineJoin = 'round'
 
-              const pos = getEventPos(e);
+              const pos = getEventPos(e)
 
               if (selectedTool === 'line') {
-                drawLine(startPos.x, startPos.y, pos.x, pos.y);
+                drawLine(startPos.x, startPos.y, pos.x, pos.y)
               } else if (selectedTool === 'circle') {
-                drawCircle(startPos.x, startPos.y, pos.x, pos.y);
+                drawCircle(startPos.x, startPos.y, pos.x, pos.y)
               }
             }
           }
 
-          clearPreview();
-          setStartPos(null);
+          clearPreview()
+          setStartPos(null)
         }
 
-        stopFadeAnimation();
-        saveToHistory();
-        onDrawingEnd?.();
+        stopFadeAnimation()
+        saveToHistory()
+        onDrawingEnd?.()
       }
     },
     [
@@ -721,7 +721,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       clearPreview,
       onDrawingEnd,
     ]
-  );
+  )
 
   const handleCanvasClick = useCallback(
     (
@@ -731,15 +731,15 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     ) => {
       if (selectedTool === 'fill') {
         if ('touches' in e) {
-          e.preventDefault();
+          e.preventDefault()
         }
 
-        const pos = getEventPos(e);
-        floodFill(Math.floor(pos.x), Math.floor(pos.y), selectedColor);
+        const pos = getEventPos(e)
+        floodFill(Math.floor(pos.x), Math.floor(pos.y), selectedColor)
       }
     },
     [selectedTool, getEventPos, floodFill, selectedColor]
-  );
+  )
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
@@ -853,5 +853,5 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         colors={customColors}
       />
     </div>
-  );
-};
+  )
+}

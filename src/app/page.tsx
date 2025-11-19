@@ -44,28 +44,26 @@ export default function Home() {
 
   // Recording example handler
   const handleRecordingStreamReady = (stream: MediaStream) => {
-    const options: MediaRecorderOptions = {}
-
-    if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) {
-      options.mimeType = 'video/webm;codecs=vp9,opus'
-    } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
-      options.mimeType = 'video/webm;codecs=vp8,opus'
-    } else if (MediaRecorder.isTypeSupported('video/webm')) {
-      options.mimeType = 'video/webm'
-    }
-
-    mediaRecorder.current = new MediaRecorder(stream, options)
+    // On testing with different browsers,
+    // webm mimeType appeared inconsistent.
+    // mp4 seems reliable.
+    mediaRecorder.current = new MediaRecorder(stream, {
+      mimeType: 'video/mp4'
+    })
 
     mediaRecorder.current.ondataavailable = (e) => {
+      // console.log('[dataavailable]', e.data.size, e.data.type)
+      // console.log('Received data of size: ', e.data.size)
       if (e.data.size > 0) {
         chunks.current.push(e.data)
       }
     }
 
     mediaRecorder.current.onstop = () => {
+      // console.log('[onstop] chunks length', chunks.current.length)
       const blob = new Blob(chunks.current, { type: 'video/webm' })
       const url = URL.createObjectURL(blob)
-      console.log('Recorded blob URL: ', url)
+      // console.log('Recorded blob URL: ', url, 'of size: ', blob.size)
       setRecordedVideoUrl(url)
     }
   }
@@ -77,7 +75,7 @@ export default function Home() {
       mediaRecorder.current.stop()
     } else {
       chunks.current = []
-      mediaRecorder.current.start()
+      mediaRecorder.current.start(100) // capture data every 100ms
     }
     setIsRecording(!isRecording)
   }

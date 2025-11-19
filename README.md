@@ -28,4 +28,4 @@ This repository in particular, implements recording feature. After clicking the 
 
 Here's the demo:
 
-![Video demo](2025-11-20%2001-03-45.mp4)
+https://github.com/user-attachments/assets/bebe6857-d9f9-4b50-a2cd-72e3fef37cce
